@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monetag Auto Mathod</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- ✅ Dual Zone SDK -->
+<script src='//libtl.com/sdk.js' data-zone='11005682' data-sdk='show_11005682'></script>
+<script src='//libtl.com/sdk.js' data-zone='11005685' data-sdk='show_11005685'></script>
+
+<style>
+body {
+  margin:0;
+  height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(-45deg,#1a2a6c,#16222a,#3a0ca3,#000);
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+}
+
+@keyframes gradientBG {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.card {
+  width:350px;
+  padding:25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter: blur(15px);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 0 20px rgba(0,229,255,0.3);
+  text-align:center;
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(20px);}
+  to {opacity:1; transform:translateY(0);}
+}
+
+button {
+  padding:12px 15px;
+  border:none;
+  border-radius:10px;
+  background:#00e5ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+  box-shadow:0 0 10px #00e5ff;
+}
+
+button:hover {
+  transform:scale(1.05);
+  box-shadow:0 0 20px #00e5ff;
+}
+
+.timer {
+  margin-top:10px;
+  font-size:18px;
+  color:#4caf50;
+}
+
+.progress {
+  width:100%;
+  height:8px;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  margin-top:10px;
+  overflow:hidden;
+}
+
+.progress-bar {
+  height:100%;
+  width:0%;
+  background:#00e5ff;
+  transition: width 1s linear;
+}
+
+/* 💰 Coin badge */
+.coin {
+  margin-top:10px;
+  font-size:20px;
+  background:#ffd700;
+  color:#000;
+  padding:8px 15px;
+  border-radius:20px;
+  display:inline-block;
+  box-shadow:0 0 10px gold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🚀 Auto Ads System</h2>
+  <button onclick="enableAuto()">Auto Start</button>
+
+  <div class="timer">
+    Next Ads in <span id="countdown">20</span>s
+  </div>
+
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- 💰 Coin Counter -->
+  <div class="coin">
+    💰 Coins: <span id="adCount">0</span>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+
+let timerInterval;
+let timeLeft = 20;
+
+// 🔊 Sound
+const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+
+// 📳 Vibration
+function vibrate(){
+  if(navigator.vibrate){
+    navigator.vibrate(100);
+  }
+}
+
+// Counter
+let adCount = localStorage.getItem("adCount") 
+  ? parseInt(localStorage.getItem("adCount")) 
+  : 0;
+
+const adCountElement = document.getElementById("adCount");
+adCountElement.textContent = adCount;
+
+// Zone
+let currentZone = localStorage.getItem("zone") 
+  ? parseInt(localStorage.getItem("zone")) 
+  : 1;
+
+function animateCount(){
+  adCountElement.style.transform="scale(1.3)";
+  setTimeout(()=>{ adCountElement.style.transform="scale(1)"; },200);
+}
+
+function showAdSmart() {
+
+  let openAd = null;
+  if (currentZone === 1 && typeof show_11005682 === "function") {
+    openAd = show_11005682;
+  } 
+  else if (currentZone === 2 && typeof show_11005685 === "function") {
+    openAd = show_11005685;
+  }
+
+  if(openAd){
+    const clickEvent = new MouseEvent('click',{bubbles:true,cancelable:true,view:window});
+    document.body.dispatchEvent(clickEvent);
+    openAd().catch(()=>{});
+
+    clickSound.play();
+    vibrate();
+
+    adCount++;
+    localStorage.setItem("adCount", adCount);
+    adCountElement.textContent = adCount;
+
+    animateCount();
+  }
+
+  currentZone = (currentZone === 1) ? 2 : 1;
+  localStorage.setItem("zone", currentZone);
+}
+
+function startAutoTimer() {
+  clearInterval(timerInterval);
+
+  timeLeft = 20;
+  document.getElementById("countdown").textContent = timeLeft;
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("countdown").textContent = timeLeft;
+
+    let percent = ((20 - timeLeft) / 20) * 100;
+    document.getElementById("progressBar").style.width = percent + "%";
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      setTimeout(()=>{ location.reload(); }, 2000);
+    }
+  }, 1000);
+}
+
+function enableAuto() {
+  localStorage.setItem("adMode", "auto");
+
+  showAdSmart();
+  startAutoTimer();
+}
+
+window.addEventListener("load", () => {
+  localStorage.setItem("adMode", "auto");
+
+  showAdSmart();
+  startAutoTimer();
+});
+</script>
+
+</body>
+</html>
